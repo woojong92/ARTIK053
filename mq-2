@@ -1,0 +1,34 @@
+#include <stdio.h>
+#include <apps/shell/tash.h>
+
+#include <errno.h>
+#include <fcntl.h>
+#include <tinyara/analog/adc.h>
+#include <tinyara/analog/ioctl.h>
+
+int main(int argc, FAR char *argv[])
+{
+	int fd, ret;
+	struct adc_msg_s mq2;
+	size_t readsize;
+	ssize_t nbytes;
+
+	fd=open("/dev/adc0", O_RDONLY);
+
+	printf("ADC Data:\n");
+
+	while(1){
+		ret=ioctl(fd, ANIOC_TRIGGER, 0);
+
+		readsize=sizeof(struct adc_msg_s);
+		nbytes=read(fd, &mq2, readsize);
+
+		//int nmq2=sizeof(struct adc_masg_s);
+		if(mq2.am_channel==0){
+			printf("ADC chnnel: %d, value: %d\n", mq2.am_channel, mq2.am_data);
+		}
+		usleep(5000);
+	}
+	close(fd);
+
+}
